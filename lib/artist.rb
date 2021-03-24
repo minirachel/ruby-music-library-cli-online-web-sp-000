@@ -1,13 +1,11 @@
 require 'pry'
+require_relative './song.rb'
 
 class Artist
 
     attr_accessor :name, :songs
 
-    extend Findable
-    extend Persistable::ClassMethods
-    include Persistable::InstanceMethods
-    extend Nameable::ClassMethods
+    extend Concerns::Findable 
 
     @@all = []
 
@@ -19,20 +17,30 @@ class Artist
         @@all
     end
 
+    def save
+        self.class.all << self
+    end
+
+    def self.destroy_all
+        self.all.clear
+    end
+
+    def count
+        self.all.size
+    end
 
     def songs
         Song.all.select {|s| s.artist == self}
     end
 
-    def add_song(song)
-        if Song.find_by_name(name) == nil
-            song.artist = self
-            #assign current artist to song
-            #add song to artist's collection
-        else
-            nil
-        end
+    def genres
+        songs.map{|g| g.genre}.uniq
+    end
 
+    def add_song(song)
+        if !song.artist
+            song.artist = self
+        end
     end
 
 end
